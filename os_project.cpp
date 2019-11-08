@@ -6,12 +6,27 @@
 
 using namespace std;
 
+class info_of_dir{
+	public:
+		int n;//number of files in the directory
+		string* name_of_file;
+		char** hash_of_each_file;
+	//method..
+	void run_the_routine(){
+		//check each and every file in the directory.
+	}
+}
 int check(char one[MAX],char two[MAX],char three[MAX])
 {
 	if(strcmp(one,"git")==0)
 	{
 		if(strcmp(two,"init")==0)
 		{
+			//create a master file which will keep record of current commit version -1
+			//name of the master file is master
+			//create a directory my_git
+			//inside this file master_record.txt
+			//      field current commit=-1
 			return 1;
 		}
 		else if(strcmp(two,"add")==0)
