@@ -18,11 +18,13 @@ def extract_previous_commit_info():
      #this will return list of file name and there hast and ther diff file n.o
     master_file=open('.mygit/master_file.txt','r')
     current_commit_num=master_file.read()
-    current_commit_file_name='commit_'+current_commit_num
+    current_commit_file_name='.mygit/commit_'+current_commit_num
+    print('printing the name of the file ',current_commit_file_name)
+    print('number of charecters in the file name is ',len(current_commit_file_name))
     current_commit_file=open(current_commit_file_name,'r')
     num_of_file=current_commit_file.readline()#reading the number of file.
     my_map={}
-    for i in range(num_of_file):
+    for i in range(int(num_of_file)):
         #this loop will run num_of_file times.
         key=current_commit_file.readline()
         value_h=current_commit_file.readline()
@@ -81,5 +83,6 @@ if a[1]=='init':
         zeroth_commit.close()
         current_diff_counter.close()
 elif a[1]=='status':
-    print('printing from here',current_files())
+    print('calling the status code')
+    satus()
      
