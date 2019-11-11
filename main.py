@@ -109,7 +109,9 @@ def add(x):
             pass
         else:
             #base case.
-            #diff increment. 
+            #diff increment.
+            hash_val=hashlib.md5(open(x,'rb').read()).hexdigest() 
+            add_file_dis.writelines(hash_val)
             current_diff_counter=open('.mygit/diff_counter','w')
             diff_val=int(current_diff_counter.read())+1
             current_diff_counter.write(diff_val)
