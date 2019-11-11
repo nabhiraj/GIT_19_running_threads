@@ -1,5 +1,6 @@
 import sys
 import os
+import os.path
 import difflib
 import hashlib#for calculating md5hash
 #taking command line arguments in python
@@ -66,34 +67,47 @@ def satus():
         print(i)
         
 def add(x):
-	forbiden_path=os.getcwd()+'/.mygit'
-	for root,dirs,files in os.walk(os.getcwd()):
-		temp_root=root
-		if root!=forbiden_path:
-			for i in files:
-				if(x==i):
-					#**check whether the file is different from the commited one by comparing md5 
-					rf=open('.mygit/addlist_unique.txt','r')
-					#print(temp_root+'/'+i)
-					
-					for j in enumerate(rf):		#**loop to check whether any previous adds of same file are there or not
-						if j[1] == temp_root+'/'+i+'\n':
-							print("Already exist")
-							#** write code to check whether it is different from previously added file
-							#** write code which overwrites previous temp_diff
-							return 
-					rf.close()
-					
-					af=open('.mygit/addlist_unique.txt','a')
-					af.write(temp_root+'/'+i+'\n')     #af add file path if it has not been added before
-					tempd=open('.mygit/temp_diff'+i+'.txt','w')
-					'''
-					-code to open the previous committed/added file and calculate difference
-					-storing the difference temporarily in temp_diff which will be permanently saved while committing
-					'''
-					af.close()
-					return
-	print("File not found...")		          
+    forbiden_path=os.getcwd()+'/.mygit'
+    for root,dirs,files in os.walk(os.getcwd()):
+        temp_root=root
+        if root!=forbiden_path:
+            for i in files:
+                if(x==i):
+                    #**check whether the file is different from the commited one by comparing md5 
+                    if os.path.exists('.mygit/addlist_unique.txt'):
+                        rf=open('.mygit/addlist_unique.txt','w')
+                    else:
+                        rf=open('.mygit/addlist_unique.txt','w')
+                    #print(temp_root+'/'+i)
+                    list1=[]
+                    list2=[]
+                    list1,list2=file_changed()
+                    #print("The list1",list1)
+                    #print("The list2",list2)
+                    abs_file_name=os.path.abspath(x)
+                    for i in list1:
+                        if(i==abs_file_name):
+                            rf.writelines(i)
+
+                    """for j in enumerate(rf):     #**loop to check whether any previous adds of same file are there or not
+                        if j[1] == temp_root+'/'+i+'\n':
+                            print("Already exist")
+                            #** write code to check whether it is different from previously added file
+                            #** write code which overwrites previous temp_diff
+                            return""" 
+                    rf.close()
+                    
+                    """af=open('.mygit/addlist_unique.txt','a')
+                    af.write(temp_root+'/'+i+'\n')     #af add file path if it has not been added before
+                    tempd=open('.mygit/temp_diff'+i+'.txt','w')"""
+                    '''
+                    -code to open the previous committed/added file and calculate difference
+                    -storing the difference temporarily in temp_diff which will be permanently saved while committing
+                    '''
+                    #af.close()
+                    #return
+    #print("File not found...")
+		          
 					
 
 #execuion of code start from this file.
