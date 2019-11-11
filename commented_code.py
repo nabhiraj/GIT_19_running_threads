@@ -21,48 +21,25 @@ def extract_previous_commit_info():
     master_file=open('.mygit/master_file.txt','r')
     current_commit_num=master_file.read()
     current_commit_file_name='.mygit/commit_'+current_commit_num
+    print('printing the name of the file ',current_commit_file_name)
+    print('number of charecters in the file name is ',len(current_commit_file_name))
     current_commit_file=open(current_commit_file_name,'r')
     num_of_file=current_commit_file.readline()#reading the number of file.
     my_map={}
     for i in range(int(num_of_file)):
         #this loop will run num_of_file times.
-        key=current_commit_file.readline()		 #complete path of the file
-        print('the path of the file is ',key)
-        value_h=current_commit_file.readline()	 #hash of the file
-        print('the hash of the file is ',value_h)
-        value_d=current_commit_file.readline()   #diff index of the file.
-        print('the diff index of the file is ')
+        key=current_commit_file.readline()		 #**sequence num of commit
+        value_h=current_commit_file.readline()	 #**name of that file
+        value_d=current_commit_file.readline()   #**difference index
         value=(value_h,value_d)
         my_map[key]=value
     master_file.close()
     current_commit_file.close()#closing both the opened file.
     return my_map
 
-def extract_previous_add_info():
-    only_add_file=open('.mygit/addlist_unique.txt')
-    num_co_file=open('.mygit/myfile_counter.txt')
-    number_of_entry=num_co_file.read()
-    number_of_entry=int(number_of_entry)
-    my_map={}
-    for i in range(number_of_entry):
-        key=only_add_file.readline()
-        print('the path of the file is ',key)
-        value_h=only_add_file.readline()
-        print('the hash of the file is ',value_h)
-        value_d=only_add_file.readline()
-        print('the temp diff index of the file is ',value_d) 
-        value=(value_h,value_d)
-        my_map[key]=value
-    only_add_file.close()
-    num_co_file.close()
-    return my_map
-
 def file_changed():
-    if os.path.exists('.mygit/addlist_unique.txt'):
-        prev_map=extract_previous_add_info()
-    else:
-        prev_map=extract_previous_commit_info()#returns a map wiht following structure. 
-    cf=current_files()#return complete path of all the files in he directory.
+    prev_map=extract_previous_commit_info()
+    cf=current_files()
     changed=[]
     no_changed=[]
     for e_f in cf:
@@ -72,7 +49,7 @@ def file_changed():
                 no_changed.append(e_f)
             else:
                 changed.append(e_f)
-                pass
+            pass
         else:
             changed.append(e_f)
     t=(changed,no_changed)
@@ -92,25 +69,44 @@ def satus():
 def add(x):
     forbiden_path=os.getcwd()+'/.mygit'
     for root,dirs,files in os.walk(os.getcwd()):
-        #temp_root=root
+        temp_root=root
         if root!=forbiden_path:
             for i in files:
                 if(x==i):
+                    #**check whether the file is different from the commited one by comparing md5 
                     if os.path.exists('.mygit/addlist_unique.txt'):
-                        rf=open('.mygit/addlist_unique.txt','a')
+                        rf=open('.mygit/addlist_unique.txt','w')
                     else:
                         rf=open('.mygit/addlist_unique.txt','w')
-                    list1=[]#changed files
+                    #print(temp_root+'/'+i)
+                    list1=[]
                     list2=[]
                     list1,list2=file_changed()
+                    #print("The list1",list1)
+                    #print("The list2",list2)
                     abs_file_name=os.path.abspath(x)
-                    for i in list1:#checking the parameter added is changed file or not
+                    for i in list1:
                         if(i==abs_file_name):
-                            rf.writelines(i) 
-                            #hash of that file.
-                            #diff of that file.
+                            rf.writelines(i)
+
+                    """for j in enumerate(rf):     #**loop to check whether any previous adds of same file are there or not
+                        if j[1] == temp_root+'/'+i+'\n':
+                            print("Already exist")
+                            #** write code to check whether it is different from previously added file
+                            #** write code which overwrites previous temp_diff
+                            return""" 
                     rf.close()
                     
+                    """af=open('.mygit/addlist_unique.txt','a')
+                    af.write(temp_root+'/'+i+'\n')     #af add file path if it has not been added before
+                    tempd=open('.mygit/temp_diff'+i+'.txt','w')"""
+                    '''
+                    -code to open the previous committed/added file and calculate difference
+                    -storing the difference temporarily in temp_diff which will be permanently saved while committing
+                    '''
+                    #af.close()
+                    #return
+    #print("File not found...")
 		          
 					
 
