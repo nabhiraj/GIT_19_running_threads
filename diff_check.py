@@ -10,4 +10,9 @@ for line in p.read():
 fp.close()
 
 q = os.popen('patch a.txt diff.txt')
+#fp=open('new_file.txt','w')
+#for line in q.read():
+#    fp.write(line)
+#fp.close()
+    
 

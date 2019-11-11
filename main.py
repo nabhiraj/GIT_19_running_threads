@@ -16,7 +16,29 @@ def current_files():
                 #print(temp_root+'/'+i)
                 res.append(temp_root+'/'+i)
     return res
-  
+def extract_commit(commit_no):
+     #this will return list of file name and there hash and ther diff file n.o
+    #master_file=open('.mygit/master_file.txt','r')
+    #current_commit_num=master_file.read()
+    current_commit_file_name='.mygit/commit_'+commit_no
+    current_commit_file=open(current_commit_file_name,'r')
+    num_of_file=current_commit_file.readline()#reading the number of file.
+    my_map={}
+    for i in range(int(num_of_file)):
+        #this loop will run num_of_file times.
+        key=current_commit_file.readline()       #complete path of the file
+        print('the path of the file is ',key)
+        value_h=current_commit_file.readline()   #hash of the file
+        print('the hash of the file is ',value_h)
+        value_d=current_commit_file.readline()   #diff index of the file.
+        print('the diff index of the file is ')
+        value=(value_h,value_d)
+        my_map[key]=value
+    #master_file.close()
+    current_commit_file.close()#closing both the opened file.
+    return my_map
+
+
 def extract_previous_commit_info():
      #this will return list of file name and there hash and ther diff file n.o
     master_file=open('.mygit/master_file.txt','r')
@@ -81,6 +103,14 @@ def file_changed():
     t=(changed,no_changed)
     return t
 
+
+def recover_file_from_commit(file_path):
+    #got to the last commit file where you can find this file_path in the list of 
+    #file in commit.
+    #the latest commit number is stored in master file
+    #find the inisial commit for that file
+    # and keep on gerating the temp file.
+
 def satus():
     t=file_changed()
     changed_file=t[0]
@@ -91,6 +121,8 @@ def satus():
     print('file which have to change')
     for i in not_changed_file:
         print(i)
+        
+                
         
 def add(x):
     x=os.path.abspath(x)
