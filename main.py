@@ -124,5 +124,5 @@ elif a[1]=='add':
 	print(a[2])
 	add(a[2])
 
-current_files()
+#current_files()
      
