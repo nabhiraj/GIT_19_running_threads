@@ -4,6 +4,7 @@ import os.path
 import difflib
 import hashlib#for calculating md5hash
 #taking command line arguments in python
+import difflib
 def current_files():
     #check all the file exept from mygit
     res=[]
@@ -26,9 +27,9 @@ def extract_previous_commit_info():
     my_map={}
     for i in range(int(num_of_file)):
         #this loop will run num_of_file times.
-        key=current_commit_file.readline()		 #complete path of the file
+        key=current_commit_file.readline()       #complete path of the file
         print('the path of the file is ',key)
-        value_h=current_commit_file.readline()	 #hash of the file
+        value_h=current_commit_file.readline()   #hash of the file
         print('the hash of the file is ',value_h)
         value_d=current_commit_file.readline()   #diff index of the file.
         print('the diff index of the file is ')
@@ -90,29 +91,41 @@ def satus():
         print(i)
         
 def add(x):
+    x=os.path.abspath(x)
     forbiden_path=os.getcwd()+'/.mygit'
-    for root,dirs,files in os.walk(os.getcwd()):
-        #temp_root=root
-        if root!=forbiden_path:
-            for i in files:
-                if(x==i):
-                    if os.path.exists('.mygit/addlist_unique.txt'):
-                        rf=open('.mygit/addlist_unique.txt','a')
-                    else:
-                        rf=open('.mygit/addlist_unique.txt','w')
-                    list1=[]#changed files
-                    list2=[]
-                    list1,list2=file_changed()
-                    abs_file_name=os.path.abspath(x)
-                    for i in list1:#checking the parameter added is changed file or not
-                        if(i==abs_file_name):
-                            rf.writelines(i) 
-                            #hash of that file.
-                            #diff of that file.
-                    rf.close()
+    my_map=extract_previous_commit_info()
+    list_system_file=current_files()
+    changed_fil=file_changed()
+    add_file_dis=""
+    if x in changed_fil:
+        if os.path.exists('.mygit/addlist_unique.txt'):
+            add_file_dis=open('.mygit/addlist_unique.txt','a')
+        else:
+            add_file_dis=open('.mygit/addlist_unique.txt','a')
+        add_file_dis.writelines(x)
+        #hash
+        #diff index after creating the diff file.
+        if x in my_map.keys():
+            pass
+        else:
+            #base case.
+            #diff increment. 
+            current_diff_counter=open('.mygit/diff_counter','w')
+            diff_val=int(current_diff_counter.read())+1
+            current_diff_counter.write(diff_val)
+            #diff x ki wirte kar do.
+            
+            
+            #temp+diff+diff_counter.
+            temp_name="temp"+"diff"+diff_val
+            temp_file=open(temp_name,'w')
+            temp_file.write(x.read())
+            #my_file_counter ko increment karna hai.
+    else:
+        print('there is no change in file ',x)
                     
-		          
-					
+                  
+                    
 
 #execuion of code start from this file.
 a=sys.argv
@@ -138,9 +151,9 @@ elif a[1]=='status':
     satus()
    
 elif a[1]=='add':
-	print('add being called')
-	print(a[2])
-	add(a[2])
+    print('add being called')
+    print(a[2])
+    add(a[2])
 
 #current_files()
      
