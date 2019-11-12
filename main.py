@@ -196,17 +196,45 @@ def commit_routine():
     
 
 #a very important case is not taken care of what if the file is readded in add after some change
+# a above this is fixed now we have to fix the diff counter if we want not nessary
 def add(x):
     x=os.path.abspath(x)
     my_map=extract_previous_commit_info()
     changed_fil=file_changed()[0]
     add_file_dis=""
+    add_map=""
     if x in changed_fil:
         if os.path.exists('.mygit/addlist_unique.txt'):
             #opening the file in just append mode
+            add_map=extract_previous_add_info()
             add_file_dis=open('.mygit/addlist_unique.txt','a')
             #here we will check he path x already exist or not if yes then we will create a new file
             #and so on.
+            if x in add_map.keys():
+                #i.e the file is already present
+                #first rename this file.
+                #copy the content of this file into a new .mygit/addlist_unique.txt exept x
+                #decrement the counter of myfile_counter.txt
+                #os.rename('.mygit/addlist_unique.txt','.mygit/spiderman.txt')
+                #os.remove('.mygit/addlist_unique.txt')
+                add_file_dis.close()#remeber to reopen it
+                extra_file=open('.mygit/addlist_unique.txt','w')
+                for ee in add_map.keys():
+                    if ee!=x:
+                        extra_file.writelines(ee+'\n')
+                        extra_file.writelines(add_map[ee][0]+'\n')
+                        extra_file.writelines(add_map[ee][1]+'\n')
+                pass
+                #now we have to decrement the counter
+                temp_counter_file=open('.mygit/myfile_counter.txt','r')
+                t=int(temp_counter_file.read())
+                t=t-1
+                temp_counter_file.close()
+                temp_counter_file=open('.mygit/myfile_counter.txt','w')
+                temp_counter_file.write(str(t));
+                temp_counter_file.close()
+                extra_file.close()
+                add_file_dis=open('.mygit/addlist_unique.txt','a')
         else:
             #creating new set of files
             add_file_dis=open('.mygit/addlist_unique.txt','w')
