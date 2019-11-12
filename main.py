@@ -4,7 +4,33 @@ import os.path
 import difflib
 import hashlib#for calculating md5hash
 #taking command line arguments in python
-import difflib
+
+
+#unix methods start
+def add_the_difference(accu_file,diff_file):#arguments cointain the complete path
+    cd='patch '+accu_file+' '+diff_file
+    print('we are executing the following command',cd)
+    global q
+    q=os.popen(cd)
+    
+    
+    
+def create_diff(old_file_name,new_file_name,diff_file_name):
+    #arguments cointain the complete path
+    cd='diff '+old_file_name+' '+new_file_name
+    print('we are executing the following command',cd)
+    p=os.popen(cd)
+    fp=open(diff_file_name,'w')
+    for line in p.read():
+        fp.write(line)
+    fp.close()
+#unix methods ends
+
+
+
+
+
+
 def current_files():
     #check all the file exept from mygit
     res=[]
@@ -23,14 +49,18 @@ def extract_commit(commit_no):
     current_commit_file_name='.mygit/commit_'+commit_no
     current_commit_file=open(current_commit_file_name,'r')
     num_of_file=current_commit_file.readline()#reading the number of file.
+    num_of_file=num_of_file[:-1]
     my_map={}
     for i in range(int(num_of_file)):
         #this loop will run num_of_file times.
         key=current_commit_file.readline()       #complete path of the file
+        key=key[:-1]
         print('the path of the file is ',key)
         value_h=current_commit_file.readline()   #hash of the file
+        value_h=value_h[:-1]
         print('the hash of the file is ',value_h)
         value_d=current_commit_file.readline()   #diff index of the file.
+        value_d=value_d[:-1]
         print('the diff index of the file is ')
         value=(value_h,value_d)
         my_map[key]=value
@@ -46,14 +76,18 @@ def extract_previous_commit_info():
     current_commit_file_name='.mygit/commit_'+current_commit_num
     current_commit_file=open(current_commit_file_name,'r')
     num_of_file=current_commit_file.readline()#reading the number of file.
+    num_of_file=num_of_file[:-1]
     my_map={}
     for i in range(int(num_of_file)):
         #this loop will run num_of_file times.
         key=current_commit_file.readline()       #complete path of the file
+        key=key[:-1]
         print('the path of the file is ',key)
         value_h=current_commit_file.readline()   #hash of the file
+        value_h=value_h[:-1]
         print('the hash of the file is ',value_h)
         value_d=current_commit_file.readline()   #diff index of the file.
+        value_d=value_d[:-1]
         print('the diff index of the file is ')
         value=(value_h,value_d)
         my_map[key]=value
@@ -69,10 +103,13 @@ def extract_previous_add_info():
     my_map={}
     for i in range(number_of_entry):
         key=only_add_file.readline()
+        key=key[:-1]
         print('the path of the file is ',key)
         value_h=only_add_file.readline()
+        value_h=value_h[:-1]
         print('the hash of the file is ',value_h)
         value_d=only_add_file.readline()
+        value_d=value_d[:-1]
         print('the temp diff index of the file is ',value_d) 
         value=(value_h,value_d)
         my_map[key]=value
@@ -80,19 +117,29 @@ def extract_previous_add_info():
     num_co_file.close()
     return my_map
 
+
+#we have to comment the file changed code
 def file_changed():
+    prev_map=""
     if os.path.exists('.mygit/addlist_unique.txt'):
-        print('code should not be here')
+        print('add info already exist')
         prev_map=extract_previous_add_info()
+        print('printing the add info data')
+        print(prev_map)
     else:
         print('code should be here')
         prev_map=extract_previous_commit_info()#returns a map wiht following structure. 
+        print('printing the commit info data')
+        print(prev_map)
     cf=current_files()#return complete path of all the files in he directory.
     changed=[]
     no_changed=[]
     for e_f in cf:
         if e_f in prev_map.keys():
-            e_f_hash_value=hashlib.md5(e_f).hexdigest()
+            #e_f_hash_value=hashlib.md5(e_f).hexdigest()
+            jjj=open(e_f,'rb')
+            e_f_hash_value=hashlib.md5(jjj.read()).hexdigest()#this mthods needs to improve. 
+            jjj.close()
             if e_f_hash_value==prev_map[e_f][0]:
                 no_changed.append(e_f)
             else:
@@ -104,12 +151,32 @@ def file_changed():
     return t
 
 
-def recover_file_from_commit(file_path):
-    #got to the last commit file where you can find this file_path in the list of 
-    #file in commit.
-    #the latest commit number is stored in master file
-    #find the inisial commit for that file
-    # and keep on gerating the temp file.
+def recover_file_from_commit(file_path,created_file_name):#this will cointain the complete file path
+    master_file=open('.mygit/master_file.txt','r')
+    current_commit_num=master_file.read()
+    master_file.close()
+    temp_commit_num=current_commit_num
+    temp_commit_map=extract_commit(temp_commit_num)
+    mystack=[]
+    if file_path not in temp_commit_map.keys():
+        #this file has not been commited even once
+        return False
+    else:
+        while file_path in temp_commit_map.keys() and temp_commit_num>0:
+            ttt=int(temp_commit_map[file_path][1])
+            if ttt!=0:
+                mystack.append(ttt)
+            temp_commit_num=temp_commit_num-1
+            temp_commit_map=extract_commit(temp_commit_num)
+        #make a empty file
+        j=open(created_file_name,'w')
+        j.close()
+        while len(mystack)!=0:
+            target_diff_index=mystack.pop()
+            add_the_difference(created_file_name,'diff'+target_diff_index)
+            #write a report about the complete strucure first.
+        return True
+        
 
 def satus():
     t=file_changed()
@@ -118,12 +185,17 @@ def satus():
     print('file which have changed')
     for i in changed_file:
         print(i)
-    print('file which have to change')
+    print('file which have not change')
     for i in not_changed_file:
         print(i)
         
                 
-        
+def commit_routine():
+    #this will be our commit routine.
+    pass
+    
+
+#a very important case is not taken care of what if the file is readded in add after some change
 def add(x):
     x=os.path.abspath(x)
     my_map=extract_previous_commit_info()
@@ -131,51 +203,92 @@ def add(x):
     add_file_dis=""
     if x in changed_fil:
         if os.path.exists('.mygit/addlist_unique.txt'):
+            #opening the file in just append mode
             add_file_dis=open('.mygit/addlist_unique.txt','a')
+            #here we will check he path x already exist or not if yes then we will create a new file
+            #and so on.
         else:
+            #creating new set of files
             add_file_dis=open('.mygit/addlist_unique.txt','w')
             mytempt=open('.mygit/myfile_counter.txt','w')
-            mytempt.writelines('0')
+            mytempt.write('0')
             mytempt.close()
-        #hash
-        #diff index after creating the diff file.
-        current_diff_counter=open('.mygit/diff_counter','r')#does rw works.
-        diff_val=int(current_diff_counter.readline())+1
-        current_diff_counter.close()
-        current_diff_counter=open('.mygit/diff_counter','w')
-        current_diff_counter.write(str(diff_val))
-        current_diff_counter.close()
+            mytempt=open('.mygit/add_diff.txt','w')
+            mytempt.write('1')
+            mytempt.close()
+    
+        
+        
+        #this code block will change
+        #incremnting the diff counter
+        #current_diff_counter=open('.mygit/diff_counter','r')#does rw works.
+        #diff_val=int(current_diff_counter.readline())+1
+        #current_diff_counter.close()
+        #current_diff_counter=open('.mygit/diff_counter','w')
+        #current_diff_counter.write(str(diff_val))
+        #current_diff_counter.close()
+        
+        
+        
+        #adding the path of the file
         add_file_dis.writelines(x+'\n') # writing the path of the file tuple 1.
-        hash_val=hashlib.md5(open(x,'rb').read()).hexdigest() 
+        
+        
+        #adding the hash value of the file.
+        jjj=open(x,'rb')
+        hash_val=hashlib.md5(jjj.read()).hexdigest()#this mthods needs to improve. 
+        jjj.close()
         add_file_dis.writelines(hash_val+'\n')
+        
+        #taking out the new index for the temporty diff file
+        current_diff_counter=open('.mygit/add_diff.txt','r')
+        diff_val=int(current_diff_counter.read())
+        current_diff_counter.close()
+        current_diff_counter=open('.mygit/add_diff.txt','w')
+        current_diff_counter.write(str(diff_val+1))
+        current_diff_counter.close()
+        #diff_val cointain the value of the index to be used.
+        
         if x in my_map.keys():
             print('the file already exist in previous commit')
             print('this will be implimented in future')
             print('all diff to the current add will be with respect to the prevous/current commit')
+            #now we have to work around the general case.
+            #create the tempory file
+            recover_file_from_commit(x,'.mygit/marvel_is_better_than_dc.txt')
+            #now we need to create the temp diff file
+            temp_diff_file_name=".mygit/tempdiff"+str(diff_val)
+            create_diff('.mygit/marvel_is_better_than_dc.txt',x,temp_diff_file_name)
+            add_file_dis.writelines(str(diff_val)+'\n')
+            os.popen('rm .mygit/marvel_is_better_than_dc.txt')
+            
         else:
             #base case.
-            #diff increment.
-            temp_diff_file_name=".mygit/temp"+"diff"+str(diff_val)
+            
+            #writng the diff file
+            temp_diff_file_name=".mygit/tempdiff"+str(diff_val)
             temp_diff_file=open(temp_diff_file_name,'w')
             xx=open(x,'r')
             temp_diff_file.write(xx.read())
             xx.close()
             temp_diff_file.close()
-            #my_file_counter ko increment karna hai.
-            temp_counter_file=open('.mygit/myfile_counter.txt','r')
-            t=int(temp_counter_file.read())
-            t=t+1
-            temp_counter_file.close()
-            temp_counter_file=open('.mygit/myfile_counter.txt','w')
-            temp_counter_file.write(str(t));
-            temp_counter_file.close()
-            add_file_dis.writelines(str(diff_val-1)+'\n')
+            #adding the index of diff in the add file
+            add_file_dis.writelines(str(diff_val)+'\n')
             
+            
+            
+            
+        #increamenting the value of mycounter.    
+        temp_counter_file=open('.mygit/myfile_counter.txt','r')
+        t=int(temp_counter_file.read())
+        t=t+1
+        temp_counter_file.close()
+        temp_counter_file=open('.mygit/myfile_counter.txt','w')
+        temp_counter_file.write(str(t));
+        temp_counter_file.close()    
+        add_file_dis.close()        
     else:
         print('there is no change in file ',x)
-        
-        
-    add_file_dis.close()
                     
                   
                     
@@ -193,7 +306,7 @@ if a[1]=='init':
         master_file.write('0')
         #now we have to do the zero't commit
         zeroth_commit=open('.mygit/commit_0','w')
-        zeroth_commit.writelines('0')
+        zeroth_commit.writelines('0'+'\n')
         current_diff_counter=open('.mygit/diff_counter','w')
         current_diff_counter.write('1')#take the number out and then increment
         master_file.close()
