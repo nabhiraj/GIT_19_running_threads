@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import os
 import os.path
@@ -46,7 +47,7 @@ def extract_commit(commit_no):
      #this will return list of file name and there hash and ther diff file n.o
     #master_file=open('.mygit/master_file.txt','r')
     #current_commit_num=master_file.read()
-    current_commit_file_name='.mygit/commit_'+commit_no
+    current_commit_file_name='.mygit/commit_'+str(commit_no)
     current_commit_file=open(current_commit_file_name,'r')
     num_of_file=current_commit_file.readline()#reading the number of file.
     num_of_file=num_of_file[:-1]
@@ -153,7 +154,7 @@ def file_changed():
 
 def recover_file_from_commit(file_path,created_file_name):#this will cointain the complete file path
     master_file=open('.mygit/master_file.txt','r')
-    current_commit_num=master_file.read()
+    current_commit_num=int(master_file.read())
     master_file.close()
     temp_commit_num=current_commit_num
     temp_commit_map=extract_commit(temp_commit_num)
@@ -173,7 +174,7 @@ def recover_file_from_commit(file_path,created_file_name):#this will cointain th
         j.close()
         while len(mystack)!=0:
             target_diff_index=mystack.pop()
-            add_the_difference(created_file_name,'diff'+target_diff_index)
+            add_the_difference(created_file_name,'.mygit/diff'+str(target_diff_index))
             #write a report about the complete strucure first.
         return True
         
@@ -192,6 +193,66 @@ def satus():
                 
 def commit_routine():
     #this will be our commit routine.
+    if os.path.exists('.mygit/addlist_unique.txt'):
+        #read the addlist_unique file in a map
+        add_file_map=extract_previous_add_info()
+        #now change the diff file name from temporary to permanent.
+        for e_f in add_file_map.keys():
+            hash_value=add_file_map[e_f][0]
+            diff_index=add_file_map[e_f][1]
+            #code to take out the diff counter
+            diff_count_filed=open('.mygit/diff_counter','r')
+            new_diff_index=int(diff_count_filed.read())
+            diff_count_filed.close()
+            diff_count_filed=open('.mygit/diff_counter','w')
+            diff_count_filed.write(str(new_diff_index+1))
+            diff_count_filed.close()
+            #rename the file
+            os.rename('.mygit/tempdiff'+str(diff_index),'.mygit/diff'+str(new_diff_index))
+            #now modifie the entry
+            t=(hash_value,new_diff_index)
+            add_file_map[e_f]=t
+        commit_file_map=extract_previous_commit_info()
+        current_file_list=current_files()
+        res_map={}
+        #and add file map is already here.
+        for e_f in commit_file_map.keys():
+            if e_f in current_file_list:
+                res_map[e_f]=commit_file_map[e_f]
+                pass
+            else:
+                print('this file is deleted :: ',e_f)
+        for e_f in add_file_map:
+            if e_f in current_file_list:
+                res_map[e_f]=add_file_map[e_f]
+            else:
+                print('this file is deleted ::',e_f)
+        #now we have to write the data back.
+        number_of_element=len(res_map)
+        master_filed=open('.mygit/master_file.txt','r')
+        commit_no=int(master_filed.read())
+        commit_no=commit_no+1
+        master_filed.close()
+        commit_filed=open('.mygit/commit_'+str(commit_no),'w')
+        commit_filed.writelines(str(number_of_element)+'\n')
+        for e_f in res_map.keys():
+            path_m=e_f
+            hash_m=res_map[e_f][0]
+            diff_m=res_map[e_f][1]
+            commit_filed.writelines(path_m+'\n')
+            commit_filed.writelines(hash_m+'\n')
+            commit_filed.writelines(str(diff_m)+'\n')
+        commit_filed.close()
+        #delete the add file routiness
+        os.remove('.mygit/addlist_unique.txt')
+        os.remove('.mygit/myfile_counter.txt')
+        os.remove('.mygit/add_diff.txt')
+        #increase the counter of master file.
+        master_filed=open('.mygit/master_file.txt','w')
+        master_filed.write(str(commit_no))
+        master_filed.close()
+    else:
+        print('nothing to commit')
     pass
     
 
@@ -350,6 +411,8 @@ elif a[1]=='add':
     print('add being called')
     print(a[2])
     add(a[2])
+elif a[1]=='commit':
+    commit_routine()
 
 #current_files()
      
