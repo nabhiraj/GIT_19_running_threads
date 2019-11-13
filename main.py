@@ -195,7 +195,6 @@ def commit_routine():
     pass
     
 
-#a very important case is not taken care of what if the file is readded in add after some change
 # a above this is fixed now we have to fix the diff counter if we want not nessary
 def add(x):
     x=os.path.abspath(x)
@@ -293,14 +292,12 @@ def add(x):
         else:
             #base case.
             
-            #writng the diff file
+            #creating tempdiff<index> file
             temp_diff_file_name=".mygit/tempdiff"+str(diff_val)
             temp_diff_file=open(temp_diff_file_name,'w')
-            xx=open(x,'r')
-            temp_diff_file.write(xx.read())
-            xx.close()
             temp_diff_file.close()
-            #adding the index of diff in the add file
+            #do he diffing here
+            create_diff('.mygit/glob_empty',x,temp_diff_file_name)
             add_file_dis.writelines(str(diff_val)+'\n')
             
             
@@ -330,6 +327,11 @@ if a[1]=='init':
         print('correct implementation starts from here')
         #we need to create a master file
         os.mkdir('.mygit')
+        if os.path.exists('.mygit/glob_empty'):
+            pass
+        else:
+            my_emp=open('.mygit/glob_empty','w')
+            my_emp.close()
         master_file=open('.mygit/master_file.txt','w')
         master_file.write('0')
         #now we have to do the zero't commit
