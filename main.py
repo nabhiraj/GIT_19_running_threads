@@ -207,7 +207,22 @@ def satus():
     for i in not_changed_file:
         print(i)
         
-#now we have to add comment in the commit functionality.                
+def check_pointing(commit_no):
+    #we have to change all the file which are present in this commit and 
+    #generate them back in the  respective directory
+    target_env=extract_commit(commit_no)
+    for target_file_path in target_env.keys():
+        if os.path.exists(target_file_path):
+            os.remove(target_file_path)
+            recover_file_from_commit_g(commit_no,target_file_path,target_file_path)
+            pass
+        else:
+            #create the path.
+            #retrive the file.
+            #os.popen('')
+            print('this code is not implimented yet')
+            pass
+        pass              
 def commit_routine():
     #this will be our commit routine.
     if os.path.exists('.mygit/addlist_unique.txt'):
