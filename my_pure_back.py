@@ -37,10 +37,15 @@ def log_entry(comment):
     master_file=open('.mygit/master_file.txt','r')
     current_commit_num=master_file.read()
     master_file.close()
-    entry=current_commit_num+'  '+comment+'\n'
+    entry=str(int(current_commit_num)+1)+'  '+comment+'\n'
     log_file.write(entry)
     log_file.close()
 
+def log_read():
+    lfd=open('.mygit/log','r')
+    for i in lfd:
+        print(i)
+    lfd.close()
                    
 def abc(path1):
     l1=path1.split('/')
@@ -271,8 +276,9 @@ def check_pointing(commit_no):
             t_path=t[0]
             #t_file=tt[1]
             print('also creating the path')
-            os.popen('mkdir -p '+t_path)
-            time.sleep(1) 
+            #os.popen('mkdir -p '+t_path)
+            #time.sleep(1) #this bug needs to be fixed.
+            os.makedirs(t_path, exist_ok=True)
             print('the path of the file is ',t_path)
             print('the tuple is ',t)
             print('the file which we want to create is ',target_file_path)
@@ -284,9 +290,10 @@ def check_pointing(commit_no):
 
        
 #now we have to add comment in the commit functionality.                
-def commit_routine():
+def commit_routine(mycomment):
     #this will be our commit routine.
     if os.path.exists('.mygit/addlist_unique.txt'):
+        log_entry(mycomment)
         #read the addlist_unique file in a map
         add_file_map=extract_previous_add_info()
         #now change the diff file name from temporary to permanent.
@@ -510,15 +517,18 @@ if a[1]=='init':
 elif a[1]=='status':
     print('calling the status code')
     satus()
-   
 elif a[1]=='add':
     print('add being called')
     print(a[2])
     add(a[2])
 elif a[1]=='commit':
-    commit_routine()
+    commit_routine(a[2])
 elif a[1]=='checkpoint':
     check_pointing(int(a[2]))
+elif a[1]=='log':
+    #here we will print our log file.
+    log_read()
+    pass
 else:
     print('this command is not known.')
 #current_files()
