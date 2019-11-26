@@ -27,6 +27,24 @@ def create_diff(old_file_name,new_file_name,diff_file_name):
     fp.close()
 #unix methods ends
 
+  
+def log_entry(comment):
+    log_file=open(".mygit/log",'a')
+    master_file=open('.mygit/master_file.txt','r')
+    current_commit_num=master_file.read()
+    master_file.close()
+    entry=current_commit_num+'  '+comment+'\n'
+    log_file.write(entry)
+    log_file.close()
+
+                   
+def abc(path1):
+    l1=path1.split('/')
+    file_name=l1[len(l1)-1]
+    del l1[len(l1)-1]
+    path2="/".join(l1)
+    t1=(path2,file_name)
+    return t1
 
 
 
@@ -226,6 +244,7 @@ def check_pointing(commit_no):
 def commit_routine():
     #this will be our commit routine.
     if os.path.exists('.mygit/addlist_unique.txt'):
+        log_entry(comment_for_log)
         #read the addlist_unique file in a map
         add_file_map=extract_previous_add_info()
         #now change the diff file name from temporary to permanent.
@@ -451,11 +470,12 @@ elif a[1]=='status':
     satus()
    
 elif a[1]=='add':
-    print('add being called')
-    print(a[2])
-    add(a[2])
+     i=2
+     while(a[i]!='NULL'):
+        add(a[i])
+        i+=1
 elif a[1]=='commit':
-    commit_routine()
-
+    commit_routine(a[2])		#comment should be given in double quotes
+    			
 #current_files()
      
