@@ -43,6 +43,9 @@ def current_files():
                 #print(temp_root+'/'+i)
                 res.append(temp_root+'/'+i)
     return res
+
+
+
 def extract_commit(commit_no):
      #this will return list of file name and there hash and ther diff file n.o
     #master_file=open('.mygit/master_file.txt','r')
@@ -120,11 +123,14 @@ def extract_previous_add_info():
 
 
 #we have to comment the file changed code
-def file_changed():
+def file_changed():  #bugs to be fixed
+    my_commit_map=extract_previous_commit_info()
     prev_map=""
+    my_bug_fix_flag=False
     if os.path.exists('.mygit/addlist_unique.txt'):
         print('add info already exist')
         prev_map=extract_previous_add_info()
+        my_bug_fix_flag=True
         print('printing the add info data')
         print(prev_map)
     else:
@@ -147,7 +153,18 @@ def file_changed():
                 changed.append(e_f)
                 pass
         else:
-            changed.append(e_f)
+            if my_bug_fix_flag and e_f in my_commit_map.keys():
+                #here we have to write plenty of code.
+                jjj=open(e_f,'rb')
+                e_f_hash_value=hashlib.md5(jjj.read()).hexdigest()#this mthods needs to improve. 
+                jjj.close()
+                if e_f_hash_value==my_commit_map[e_f][0]:
+                    no_changed.append(e_f)
+                else:
+                    changed.append(e_f)
+                    pass
+            else:
+                changed.append(e_f)
     t=(changed,no_changed)
     return t
 
@@ -190,7 +207,7 @@ def satus():
     for i in not_changed_file:
         print(i)
         
-                
+#now we have to add comment in the commit functionality.                
 def commit_routine():
     #this will be our commit routine.
     if os.path.exists('.mygit/addlist_unique.txt'):
@@ -378,6 +395,17 @@ def add(x):
                     
                   
                     
+
+
+
+
+
+
+
+
+
+
+
 
 #execuion of code start from this file.
 a=sys.argv
