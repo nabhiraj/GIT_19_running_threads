@@ -1,0 +1,29 @@
+End User Documentation:
+
+1.To initialise the repository:
+ ./my_pure_back.py  init
+
+2.To check status:
+./my_pure_back.py  status
+
+3.To add files:
+./my_pure_back.py  add    #file_name1     #file_name2…
+
+4.To commit:
+./my_pure_back.py  commit “#comment”
+
+5.For checkpointing:
+./my_pure_back.py  checkpoint   #commit_number
+
+6.To check log:
+./my_pure_back.py  log
+
+7.To  revert:
+./my_pure_back.py  revert
+
+8.To push:
+./my_pure_back.py  push
+
+9.To pull:
+./my_pure_back.py  pull
+
