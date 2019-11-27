@@ -5,6 +5,7 @@ import os.path
 import difflib
 import hashlib
 import time
+import re
 #for calculating md5hash
 #taking command line arguments in python
 
@@ -60,7 +61,12 @@ def abc(path1):
 #helper method
 
 
-
+def rollback():
+    master_file=open('.mygit/master_file.txt','r')
+    current_commit_num=int(master_file.read())
+    master_file.close()
+    check_pointing(current_commit_num)
+    
 
 def current_files():
     #check all the file exept from mygit
@@ -519,8 +525,11 @@ if a[1]=='init':
         zeroth_commit.close()
         current_diff_counter.close()
 elif a[1]=='status':
-    print('calling the status code')
-    satus()
+        if n>2:
+            print("Too many arguments")
+            break
+        print('calling the status code')
+        satus()
 elif a[1]=='add':
     print('add being called')
     i=2
@@ -530,6 +539,9 @@ elif a[1]=='add':
     #print(a[2])
     #add(a[2])
 elif a[1]=='commit':
+    if n>3:
+        print("Too many arguments")
+        break
     commit_routine(a[2])
     path=os.getcwd()+'/.mygit'              #now deleting the temporary files "tempdiff*"
     for (root,dirs,files) in os.walk(path):
@@ -537,11 +549,24 @@ elif a[1]=='commit':
             delete_instant(i)
     
 elif a[1]=='checkpoint':
+    if n>3:
+        print("Too many arguments")
+        break
     check_pointing(int(a[2]))
 elif a[1]=='log':
+    if n>2:
+        print("Too many arguments")
+        break
     #here we will print our log file.
     log_read()
     pass
+
+elif a[1]=='revert':
+   if n>2:
+        print("Too many arguments")
+        break
+   rollback()
+    
 else:
     print('this command is not known.')
 #current_files()
