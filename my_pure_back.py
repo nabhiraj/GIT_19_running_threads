@@ -29,7 +29,10 @@ def create_diff(old_file_name,new_file_name,diff_file_name):
     fp.close()
 #unix methods ends
 
-
+def delete_instant(file_name):
+    match_obj=re.match(r'tempdiff[0123456789]*',file_name)
+    if match_obj:
+        os.remove('.mygit/'+file_name)
 
 #helper method
 def log_entry(comment):
@@ -492,6 +495,7 @@ def add(x):
 
 #execuion of code start from this file.
 a=sys.argv
+n=len(a)
 if a[1]=='init':
     if len(a)!=2:
         print("not correct number of arguments")
@@ -519,10 +523,19 @@ elif a[1]=='status':
     satus()
 elif a[1]=='add':
     print('add being called')
-    print(a[2])
-    add(a[2])
+    i=2
+    while(i<n):
+        add(a[i])
+        i+=1
+    #print(a[2])
+    #add(a[2])
 elif a[1]=='commit':
     commit_routine(a[2])
+    path=os.getcwd()+'/.mygit'              #now deleting the temporary files "tempdiff*"
+    for (root,dirs,files) in os.walk(path):
+        for i in files:
+            delete_instant(i)
+    
 elif a[1]=='checkpoint':
     check_pointing(int(a[2]))
 elif a[1]=='log':
