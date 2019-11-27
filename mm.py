@@ -289,7 +289,9 @@ def check_pointing(commit_no):
             #time.sleep(1) #this bug needs to be fixed.
             os.makedirs(t_path, exist_ok=True)
             while not os.path.exists(t_path):
+                print('does not exist')
                 pass
+            print('now the path exit')
             print('the path of the file is ',t_path)
             print('the tuple is ',t)
             print('the file which we want to create is ',target_file_path)
@@ -369,7 +371,8 @@ def commit_routine(mycomment):
 
 # a above this is fixed now we have to fix the diff counter if we want not nessary
 def add(x):
-    x=os.path.abspath(x)
+    print('add getting called by following parametere',x)
+    #x=os.path.abspath(x)
     my_map=extract_previous_commit_info()
     changed_fil=file_changed()[0]
     add_file_dis=""
@@ -534,10 +537,18 @@ elif a[1]=='status':
         satus()
 elif a[1]=='add':
     print('add being called')
-    i=2
-    while(i<n):
-        add(a[i])
-        i+=1
+    if a[2]!='all':
+        i=2
+        while(i<n):
+            a[i]=os.path.abspath(a[i])
+            add(a[i])
+            i+=1
+            pass
+        pass
+    else:
+        l=file_changed()[0]
+        for k in l:
+            add(k)
     #print(a[2])
     #add(a[2])
 elif a[1]=='commit':
@@ -545,11 +556,10 @@ elif a[1]=='commit':
         print("Too many arguments")
         #break
     commit_routine(a[2])
-    path=os.getcwd()+'/.mygit'              #now deleting the temporary files "tempdiff*"
-    for (root,dirs,files) in os.walk(path):
-        for i in files:
-            delete_instant(i)
-    
+    #path=os.getcwd()+'/.mygit'              #now deleting the temporary files "tempdiff*"
+    #for (root,dirs,files) in os.walk(path):
+    #    for i in files:
+    #        delete_instant(i)
 elif a[1]=='checkpoint':
     if n>3:
         print("Too many arguments")
